@@ -1,0 +1,48 @@
+name: Matka Precision Trigger
+
+on:
+  schedule:
+    # 20 phiên IST đã quy đổi sang UTC (Trừ đi 5 phút để "xếp hàng")
+    - cron: '25 5 * * *'    # 11:00 IST
+    - cron: '00 6 * * *'    # 11:35 IST
+    - cron: '27 6 * * *'    # 12:02 IST
+    - cron: '00 7 * * *'    # 12:35 IST
+    - cron: '25 7 * * *'    # 13:00 IST
+    - cron: '25 8 * * *'    # 14:00 IST
+    - cron: '30 9 * * *'    # 15:05 IST
+    - cron: '25 10 * * *'   # 16:00 IST
+    - cron: '15 11 * * *'   # 16:50 IST
+    - cron: '30 11 * * *'   # 17:05 IST
+    - cron: '25 12 * * *'   # 18:00 IST
+    - cron: '15 13 * * *'   # 18:50 IST
+    - cron: '40 13 * * *'   # 19:15 IST
+    - cron: '40 14 * * *'   # 20:15 IST
+    - cron: '25 15 * * *'   # 21:00 IST
+    - cron: '50 15 * * *'   # 21:25 IST
+    - cron: '05 16 * * *'   # 21:40 IST
+    - cron: '25 17 * * *'   # 23:00 IST
+    - cron: '55 17 * * *'   # 23:30 IST
+    - cron: '35 18 * * *'   # 00:10 IST
+
+  workflow_dispatch: # Cho phép bạn bấm nút "Run workflow" để test ngay lập tức
+
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Tai code tu GitHub
+        uses: actions/checkout@v4
+
+      - name: Cai dat Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Cai dat thu vien axios
+        run: npm install
+
+      - name: Chạy logic so khớp thời gian
+        env:
+          GOOGLE_FUNCTION_URL: ${{ secrets.GOOGLE_FUNCTION_URL }}
+          BOT_SECRET_KEY: ${{ secrets.BOT_SECRET_KEY }}
+        run: node kich-hoat-chinh-xac.js
