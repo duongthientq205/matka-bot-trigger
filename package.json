@@ -1,0 +1,12 @@
+{
+  "name": "matka-trigger",
+  "version": "1.0.0",
+  "description": "Bo kich hoat bot Google",
+  "main": "kich-hoat-chinh-xac.js",
+  "scripts": {
+    "start": "node kich-hoat-chinh-xac.js"
+  },
+  "dependencies": {
+    "axios": "^1.6.0"
+  }
+}
