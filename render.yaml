@@ -1,4 +1,3 @@
-services:
 type: cron
 name: matka-bot-crawl-all
 runtime: node
