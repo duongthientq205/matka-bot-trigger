@@ -1,16 +1,257 @@
-# Render.com Cron Job cho bot-git-prive
-
 services:
+  # Phiên 1: K_MORN_OPEN - 11:00 IST
   - type: cron
-    name: bot-git-prive-history
-    env: node
-    plan: free
-    schedule: "30 2 * * *"
-    timezone: Asia/Kolkata
+    name: matka-k-morn-open
+    runtime: node
+    schedule: "25 5 * * *"
     buildCommand: npm install
-    startCommand: node history-bot.js
-    envVars:
-      - key: FIREBASE_DATABASE_URL
+    startCommand: node kich-hoat-chinh-xac.js
+    services:
+      - type: cron
+        name: matka-bot-crawl-all
+        runtime: node
+        schedule: "* * * * *" # chạy mỗi phút
+        buildCommand: npm install
+        startCommand: node kich-hoat-chinh-xac.js
+        envVars:
+          - key: GOOGLE_FUNCTION_URL
+            sync: false
+          - key: BOT_SECRET_KEY
+            sync: false
         sync: false
-      - key: FIREBASE_SERVICE_ACCOUNT_JSON
+      - key: BOT_SECRET_KEY
+        sync: false
+
+  # Phiên 3: K_MORN_CLOSE - 12:02 IST
+  - type: cron
+    name: matka-k-morn-close
+    runtime: node
+    schedule: "27 6 * * *"
+    buildCommand: npm install
+    startCommand: node kich-hoat-chinh-xac.js
+    envVars:
+      - key: GOOGLE_FUNCTION_URL
+        sync: false
+      - key: BOT_SECRET_KEY
+        sync: false
+
+  # Phiên 4: SRI_DAY_CLOSE - 12:35 IST
+  - type: cron
+    name: matka-sri-day-close
+    runtime: node
+    schedule: "0 7 * * *"
+    buildCommand: npm install
+    startCommand: node kich-hoat-chinh-xac.js
+    envVars:
+      - key: GOOGLE_FUNCTION_URL
+        sync: false
+      - key: BOT_SECRET_KEY
+        sync: false
+
+  # Phiên 5: TIME_OPEN - 13:00 IST
+  - type: cron
+    name: matka-time-open
+    runtime: node
+    schedule: "25 7 * * *"
+    buildCommand: npm install
+    startCommand: node kich-hoat-chinh-xac.js
+    envVars:
+      - key: GOOGLE_FUNCTION_URL
+        sync: false
+      - key: BOT_SECRET_KEY
+        sync: false
+
+  # Phiên 6: TIME_CLOSE - 14:00 IST
+  - type: cron
+    name: matka-time-close
+    runtime: node
+    schedule: "25 8 * * *"
+    buildCommand: npm install
+    startCommand: node kich-hoat-chinh-xac.js
+    envVars:
+      - key: GOOGLE_FUNCTION_URL
+        sync: false
+      - key: BOT_SECRET_KEY
+        sync: false
+
+  # Phiên 7: RAJ_DAY_OPEN - 15:05 IST
+  - type: cron
+    name: matka-raj-day-open
+    runtime: node
+    schedule: "30 9 * * *"
+    buildCommand: npm install
+    startCommand: node kich-hoat-chinh-xac.js
+    envVars:
+      - key: GOOGLE_FUNCTION_URL
+        sync: false
+      - key: BOT_SECRET_KEY
+        sync: false
+
+  # Phiên 8: MILAN_DAY_OPEN - 16:00 IST
+  - type: cron
+    name: matka-milan-day-open
+    runtime: node
+    schedule: "25 10 * * *"
+    buildCommand: npm install
+    startCommand: node kich-hoat-chinh-xac.js
+    envVars:
+      - key: GOOGLE_FUNCTION_URL
+        sync: false
+      - key: BOT_SECRET_KEY
+        sync: false
+
+  # Phiên 9: K_MAIN_OPEN - 16:50 IST
+  - type: cron
+    name: matka-k-main-open
+    runtime: node
+    schedule: "15 11 * * *"
+    buildCommand: npm install
+    startCommand: node kich-hoat-chinh-xac.js
+    envVars:
+      - key: GOOGLE_FUNCTION_URL
+        sync: false
+      - key: BOT_SECRET_KEY
+        sync: false
+
+  # Phiên 10: RAJ_DAY_CLOSE - 17:05 IST
+  - type: cron
+    name: matka-raj-day-close
+    runtime: node
+    schedule: "30 11 * * *"
+    buildCommand: npm install
+    startCommand: node kich-hoat-chinh-xac.js
+    envVars:
+      - key: GOOGLE_FUNCTION_URL
+        sync: false
+      - key: BOT_SECRET_KEY
+        sync: false
+
+  # Phiên 11: MILAN_DAY_CLOSE - 18:00 IST
+  - type: cron
+    name: matka-milan-day-close
+    runtime: node
+    schedule: "25 12 * * *"
+    buildCommand: npm install
+    startCommand: node kich-hoat-chinh-xac.js
+    envVars:
+      - key: GOOGLE_FUNCTION_URL
+        sync: false
+      - key: BOT_SECRET_KEY
+        sync: false
+
+  # Phiên 12: K_MAIN_CLOSE - 18:50 IST
+  - type: cron
+    name: matka-k-main-close
+    runtime: node
+    schedule: "15 13 * * *"
+    buildCommand: npm install
+    startCommand: node kich-hoat-chinh-xac.js
+    envVars:
+      - key: GOOGLE_FUNCTION_URL
+        sync: false
+      - key: BOT_SECRET_KEY
+        sync: false
+
+  # Phiên 13: SRI_NIGHT_OPEN - 19:15 IST
+  - type: cron
+    name: matka-sri-night-open
+    runtime: node
+    schedule: "40 13 * * *"
+    buildCommand: npm install
+    startCommand: node kich-hoat-chinh-xac.js
+    envVars:
+      - key: GOOGLE_FUNCTION_URL
+        sync: false
+      - key: BOT_SECRET_KEY
+        sync: false
+
+  # Phiên 14: SRI_NIGHT_CLOSE - 20:15 IST
+  - type: cron
+    name: matka-sri-night-close
+    runtime: node
+    schedule: "40 14 * * *"
+    buildCommand: npm install
+    startCommand: node kich-hoat-chinh-xac.js
+    envVars:
+      - key: GOOGLE_FUNCTION_URL
+        sync: false
+      - key: BOT_SECRET_KEY
+        sync: false
+
+  # Phiên 15: MILAN_RAJ_OPEN - 21:00 IST
+  - type: cron
+    name: matka-milan-raj-open
+    runtime: node
+    schedule: "25 15 * * *"
+    buildCommand: npm install
+    startCommand: node kich-hoat-chinh-xac.js
+    envVars:
+      - key: GOOGLE_FUNCTION_URL
+        sync: false
+      - key: BOT_SECRET_KEY
+        sync: false
+
+  # Phiên 16: K_NIGHT_OPEN - 21:25 IST
+  - type: cron
+    name: matka-k-night-open
+    runtime: node
+    schedule: "50 15 * * *"
+    buildCommand: npm install
+    startCommand: node kich-hoat-chinh-xac.js
+    envVars:
+      - key: GOOGLE_FUNCTION_URL
+        sync: false
+      - key: BOT_SECRET_KEY
+        sync: false
+
+  # Phiên 17: MAIN_OPEN - 21:40 IST
+  - type: cron
+    name: matka-main-open
+    runtime: node
+    schedule: "5 16 * * *"
+    buildCommand: npm install
+    startCommand: node kich-hoat-chinh-xac.js
+    envVars:
+      - key: GOOGLE_FUNCTION_URL
+        sync: false
+      - key: BOT_SECRET_KEY
+        sync: false
+
+  # Phiên 18: MILAN_RAJ_CLOSE - 23:00 IST
+  - type: cron
+    name: matka-milan-raj-close
+    runtime: node
+    schedule: "25 17 * * *"
+    buildCommand: npm install
+    startCommand: node kich-hoat-chinh-xac.js
+    envVars:
+      - key: GOOGLE_FUNCTION_URL
+        sync: false
+      - key: BOT_SECRET_KEY
+        sync: false
+
+  # Phiên 19: K_NIGHT_CLOSE - 23:30 IST
+  - type: cron
+    name: matka-k-night-close
+    runtime: node
+    schedule: "55 17 * * *"
+    buildCommand: npm install
+    startCommand: node kich-hoat-chinh-xac.js
+    envVars:
+      - key: GOOGLE_FUNCTION_URL
+        sync: false
+      - key: BOT_SECRET_KEY
+        sync: false
+
+  # Phiên 20: MAIN_CLOSE - 00:10 IST
+  - type: cron
+    name: matka-main-close
+    runtime: node
+    schedule: "35 18 * * *"
+    buildCommand: npm install
+    startCommand: node kich-hoat-chinh-xac.js
+    envVars:
+      - key: GOOGLE_FUNCTION_URL
+        sync: false
+      - key: BOT_SECRET_KEY
         sync: false

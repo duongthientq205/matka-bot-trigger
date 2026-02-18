@@ -1,117 +1,102 @@
 const axios = require('axios');
 
 const LICH_TRINH_CHAY = [
-  { "id_phien": "K_MORN_OPEN",    "ist": "11:00" },
-  { "id_phien": "SRI_DAY_OPEN",   "ist": "11:35" },
-  { "id_phien": "K_MORN_CLOSE",   "ist": "12:02" },
-  { "id_phien": "SRI_DAY_CLOSE",  "ist": "12:35" },
-  { "id_phien": "TIME_OPEN",      "ist": "13:00" },
-  { "id_phien": "TIME_CLOSE",     "ist": "14:00" },
-  { "id_phien": "RAJ_DAY_OPEN",   "ist": "15:05" },
-  { "id_phien": "MILAN_DAY_OPEN", "ist": "16:00" },
-  { "id_phien": "K_MAIN_OPEN",    "ist": "16:50" },
-  { "id_phien": "RAJ_DAY_CLOSE",  "ist": "17:05" },
-  { "id_phien": "MILAN_DAY_CLOSE", "ist": "18:00" },
-  { "id_phien": "K_MAIN_CLOSE",   "ist": "18:50" },
-  { "id_phien": "SRI_NIGHT_OPEN", "ist": "19:15" },
-  { "id_phien": "SRI_NIGHT_CLOSE", "ist": "20:15" },
-  { "id_phien": "MILAN_RAJ_OPEN", "ist": "21:00" },
-  { "id_phien": "K_NIGHT_OPEN",   "ist": "21:25" },
-  { "id_phien": "MAIN_OPEN",      "ist": "21:40" },
-  { "id_phien": "MILAN_RAJ_CLOSE","ist": "23:00" },
-  { "id_phien": "K_NIGHT_CLOSE",  "ist": "23:30" },
-  { "id_phien": "MAIN_CLOSE",     "ist": "00:10" }
+    { "id_phien": "K_MORN_OPEN",    "ist": "11:00" },
+    { "id_phien": "SRI_DAY_OPEN",   "ist": "11:35" },
+    { "id_phien": "K_MORN_CLOSE",   "ist": "12:02" },
+    { "id_phien": "SRI_DAY_CLOSE",  "ist": "12:35" },
+    { "id_phien": "TIME_OPEN",      "ist": "13:00" },
+    { "id_phien": "TIME_CLOSE",     "ist": "14:00" },
+    { "id_phien": "RAJ_DAY_OPEN",   "ist": "15:05" },
+    { "id_phien": "MILAN_DAY_OPEN", "ist": "16:00" },
+    { "id_phien": "K_MAIN_OPEN",    "ist": "16:50" },
+    { "id_phien": "RAJ_DAY_CLOSE",  "ist": "17:05" },
+    { "id_phien": "MILAN_DAY_CLOSE", "ist": "18:00" },
+    { "id_phien": "K_MAIN_CLOSE",   "ist": "18:50" },
+    { "id_phien": "SRI_NIGHT_OPEN", "ist": "19:15" },
+    { "id_phien": "SRI_NIGHT_CLOSE", "ist": "20:15" },
+    { "id_phien": "MILAN_RAJ_OPEN", "ist": "21:00" },
+    { "id_phien": "K_NIGHT_OPEN",   "ist": "21:25" },
+    { "id_phien": "MAIN_OPEN",      "ist": "21:40" },
+    { "id_phien": "MILAN_RAJ_CLOSE","ist": "23:00" },
+    { "id_phien": "K_NIGHT_CLOSE",  "ist": "23:30" },
+    { "id_phien": "MAIN_CLOSE",     "ist": "00:10" }
 ];
 
 async function logicKichHoat() {
     console.log("--- [GITHUB CONTROLLER] KHỞI ĐỘNG CHẾ ĐỘ BẮN TỈA ---");
     
     const hienTai = new Date();
-    // Quy đổi giờ hiện tại sang tổng số giây trong ngày theo giờ IST (UTC + 5.5h)
-    const giayHienTaiIST = Math.floor((hienTai.getUTCHours() * 3600 + hienTai.getUTCMinutes() * 60 + hienTai.getUTCSeconds() + (5.5 * 3600))) % 86400;
+    // Lấy giờ và phút hiện tại theo IST
+    const utc = hienTai.getTime() + (hienTai.getTimezoneOffset() * 60000);
+    const istDate = new Date(utc + 5.5 * 60 * 60000);
+    const gioIST = istDate.getHours();
+    const phutIST = istDate.getMinutes();
 
-    // Tìm phiên sắp tới (trong vòng 5 phút - vì cron trigger đúng -5p before session)
-    const phienTarget = LICH_TRINH_CHAY.find(p => {
-        const [h, m] = p.ist.split(':').map(Number);
-        const giayPhien = (h * 3600 + m * 60);
-        return giayPhien > giayHienTaiIST && giayPhien <= giayHienTaiIST + 300; // Tìm trong 5p tới
-    });
-
-    if (!phienTarget) {
-        console.log("Không tìm thấy phiên nổ số nào sắp tới. Thoát.");
-        return;
+    // Kiểm tra tất cả các phiên, nếu giờ/phút trùng với lịch thì gọi bot Google
+    let found = false;
+    for (const phien of LICH_TRINH_CHAY) {
+        let [h, m] = phien.ist.split(":").map(Number);
+        // Tính thời điểm gọi trước 1 phút
+        m = m - 1;
+        if (m < 0) {
+            m = 59;
+            h = h - 1;
+            if (h < 0) h = 23;
+        }
+        if (gioIST === h && phutIST === m) {
+            found = true;
+            console.log(`>>> GỌI TRƯỚC 1 PHÚT! Đang gọi Google cho phiên: ${phien.id_phien} (${phien.ist} IST)`);
+            await goiBotGoogle(phien.id_phien);
+        }
     }
-
-    const [hT, mT] = phienTarget.ist.split(':').map(Number);
-    const giayTarget = (hT * 3600 + mT * 60);
-    const giayKichHoat = giayTarget - 60; // Giờ nổ số trừ đi 60 giây (1 phút)
-
-    const giayCanNgu = giayKichHoat - giayHienTaiIST;
-
-    if (giayCanNgu > 0) {
-        console.log(`Mục tiêu: ${phienTarget.id_phien} lúc ${phienTarget.ist} IST.`);
-        console.log(`Hệ thống sẽ ngủ trong ${giayCanNgu} giây để canh đúng 1 phút trước giờ live...`);
-        
-        // Lệnh Sleep (ngủ) theo yêu cầu của bạn
-        await new Promise(resolve => setTimeout(resolve, giayCanNgu * 1000));
+    if (!found) {
+        console.log("Không có phiên nào trùng giờ hiện tại. Thoát.");
     }
+}
 
-    // Sau khi ngủ dậy hoặc nếu đã sát giờ, thực hiện gọi Google ngay
-    console.log(`>>> ĐẾN GIỜ G (-1p)! Đang gọi Google cho phiên: ${phienTarget.id_phien}`);
-    
-    // Retry logic: Thử tối đa 3 lần nếu gặp lỗi timeout hoặc network
+// Hàm gọi Google cho từng phiên
+async function goiBotGoogle(id_phien) {
     const MAX_RETRIES = 3;
     let lanThu = 1;
     let thanhCong = false;
-    
     while (lanThu <= MAX_RETRIES && !thanhCong) {
         try {
             if (lanThu > 1) {
-                console.log(`🔄 Thử lại lần ${lanThu}/${MAX_RETRIES}...`);
+                console.log('[Retry]', 'Thu lai lan', lanThu + '/' + MAX_RETRIES + '...');
             }
-            
             const response = await axios.post(process.env.GOOGLE_FUNCTION_URL, 
-                {},
+                {
+                    secret_key: process.env.BOT_SECRET_KEY,
+                    id_phien
+                },
                 { 
-                    headers: { 
-                        'authorization': `Bearer ${process.env.BOT_SECRET_KEY}`,
-                        'Content-Type': 'application/json'
-                    },
-                    timeout: 45000  // 45 giây - đủ thời gian cho cold start
+                    headers: { 'Content-Type': 'application/json' },
+                    timeout: 45000
                 }
             );
-            
-            console.log("✅ Kích hoạt thành công!");
-            console.log("📦 Response:", response.data);
+            console.log('[OK]', 'Kich hoat thanh cong phien', id_phien + '!');
+            console.log('[Response]:', response.data);
             thanhCong = true;
-            
         } catch (err) {
-            console.error(`❌ Lần ${lanThu} thất bại:`, err.message);
-            
-            // Nếu lỗi auth (401/403) thì không retry, thoát ngay
-            if (err.response && (err.response.status === 401 || err.response.status === 403)) {
-                console.error("   Lỗi xác thực! Kiểm tra BOT_SECRET_KEY.");
-                console.error("   Status:", err.response.status);
-                console.error("   Data:", err.response.data);
-                process.exit(1);
+            console.error('[Error]', 'Lan', lanThu, 'that bai cho phien', id_phien + ':', err.message);
+            if (err.response) {
+                console.error('   Status:', err.response.status);
+                console.error('   Data:', err.response.data);
+                if (err.response.status === 401 || err.response.status === 403) {
+                    console.error('   Loi xac thuc! Kiem tra BOT_SECRET_KEY.');
+                    process.exit(1);
+                }
             }
-            
-            // Nếu còn lần retry, đợi 10 giây rồi thử lại
             if (lanThu < MAX_RETRIES) {
                 const delayGiay = 10;
-                console.log(`   Đợi ${delayGiay} giây trước khi thử lại...`);
+                console.log('   Doi', delayGiay, 'giay truoc khi thu lai...');
                 await new Promise(resolve => setTimeout(resolve, delayGiay * 1000));
             } else {
-                // Hết retry, log chi tiết lỗi
-                console.error("❌ ĐÃ HẾT SỐ LẦN THỬ! Bot Google có thể không được kích hoạt.");
-                if (err.response) {
-                    console.error("   Status:", err.response.status);
-                    console.error("   Data:", err.response.data);
-                }
+                console.error('[Error]', 'Da het so lan thu cho phien', id_phien + '! Bot Google co the khong duoc kich hoat.');
                 process.exit(1);
             }
         }
-        
         lanThu++;
     }
 }
