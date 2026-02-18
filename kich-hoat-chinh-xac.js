@@ -65,13 +65,14 @@ async function goiBotGoogle(id_phien) {
             if (lanThu > 1) {
                 console.log('[Retry]', 'Thu lai lan', lanThu + '/' + MAX_RETRIES + '...');
             }
-            const response = await axios.post(process.env.GOOGLE_FUNCTION_URL, 
+            const response = await axios.post(
+                process.env.GOOGLE_FUNCTION_URL,
+                { id_phien },
                 {
-                    secret_key: process.env.BOT_SECRET_KEY,
-                    id_phien
-                },
-                { 
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'authorization': `Bearer ${process.env.BOT_SECRET_KEY}`
+                    },
                     timeout: 45000
                 }
             );
