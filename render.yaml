@@ -6,18 +6,17 @@ services:
     schedule: "25 5 * * *"
     buildCommand: npm install
     startCommand: node kich-hoat-chinh-xac.js
-    services:
-      - type: cron
-        name: matka-bot-crawl-all
-        runtime: node
-        schedule: "* * * * *" # chạy mỗi phút
-        buildCommand: npm install
-        startCommand: node kich-hoat-chinh-xac.js
-        envVars:
-          - key: GOOGLE_FUNCTION_URL
-            sync: false
-          - key: BOT_SECRET_KEY
-            sync: false
+    type: cron
+    name: matka-bot-crawl-all
+    runtime: node
+    schedule: "* * * * *" # chạy mỗi phút
+    buildCommand: npm install
+    startCommand: node kich-hoat-chinh-xac.js
+    envVars:
+      - key: GOOGLE_FUNCTION_URL
+        sync: false
+      - key: BOT_SECRET_KEY
+        sync: false
         sync: false
       - key: BOT_SECRET_KEY
         sync: false
