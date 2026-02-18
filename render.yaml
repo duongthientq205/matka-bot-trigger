@@ -1,11 +1,12 @@
-type: cron
-name: matka-bot-crawl-all
-runtime: node
-schedule: "* * * * *" # chạy mỗi phút
-buildCommand: npm install
-startCommand: node kich-hoat-chinh-xac.js
-envVars:
-  - key: GOOGLE_FUNCTION_URL
-    sync: false
-  - key: BOT_SECRET_KEY
-    sync: false
+services:
+  - type: cron
+    name: matka-bot-crawl-all
+    runtime: node
+    schedule: "* * * * *"
+    buildCommand: npm install
+    startCommand: node kich-hoat-chinh-xac.js
+    envVars:
+      - key: GOOGLE_FUNCTION_URL
+        sync: false
+      - key: BOT_SECRET_KEY
+        sync: false
