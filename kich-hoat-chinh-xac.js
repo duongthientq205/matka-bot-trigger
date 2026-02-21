@@ -57,14 +57,10 @@ async function logicKichHoat() {
 
 // Hàm gọi Google cho từng phiên
 async function goiBotGoogle(id_phien) {
-    const MAX_RETRIES = 3;
-    let lanThu = 1;
-    let thanhCong = false;
-    while (lanThu <= MAX_RETRIES && !thanhCong) {
+    // Timeout tối đa 2 phút (120000 ms)
+    let retried = false;
+    while (true) {
         try {
-            if (lanThu > 1) {
-                console.log('[Retry]', 'Thu lai lan', lanThu + '/' + MAX_RETRIES + '...');
-            }
             const response = await axios.post(
                 process.env.GOOGLE_FUNCTION_URL,
                 { id_phien },
@@ -73,32 +69,34 @@ async function goiBotGoogle(id_phien) {
                         'Content-Type': 'application/json',
                         'authorization': `Bearer ${process.env.BOT_SECRET_KEY}`
                     },
-                    timeout: 45000
+                    timeout: 120000
                 }
             );
             console.log('[OK]', 'Kich hoat thanh cong phien', id_phien + '!');
             console.log('[Response]:', response.data);
-            thanhCong = true;
+            break;
         } catch (err) {
-            console.error('[Error]', 'Lan', lanThu, 'that bai cho phien', id_phien + ':', err.message);
-            if (err.response) {
-                console.error('   Status:', err.response.status);
-                console.error('   Data:', err.response.data);
-                if (err.response.status === 401 || err.response.status === 403) {
-                    console.error('   Loi xac thuc! Kiem tra BOT_SECRET_KEY.');
-                    process.exit(1);
-                }
+            // Nếu là timeout, đóng bot ngay
+            if (err.code === 'ECONNABORTED') {
+                console.error('[Error]', 'Timeout khi gọi bot Google cho phien', id_phien + ':', err.message);
+                process.exit(1);
             }
-            if (lanThu < MAX_RETRIES) {
-                const delayGiay = 10;
-                console.log('   Doi', delayGiay, 'giay truoc khi thu lai...');
-                await new Promise(resolve => setTimeout(resolve, delayGiay * 1000));
+            // Nếu là lỗi xác thực, đóng bot ngay
+            if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+                console.error('   Loi xac thuc! Kiem tra BOT_SECRET_KEY.');
+                process.exit(1);
+            }
+            // Nếu chưa retry, thử lại 1 lần
+            if (!retried) {
+                retried = true;
+                console.error('[Error]', 'Lỗi khi gọi bot Google cho phien', id_phien + ':', err.message);
+                console.log('   Thử gọi lại server 1 lần nữa...');
+                continue;
             } else {
-                console.error('[Error]', 'Da het so lan thu cho phien', id_phien + '! Bot Google co the khong duoc kich hoat.');
+                console.error('[Error]', 'Đã retry nhưng vẫn lỗi cho phien', id_phien + '. Đóng bot.');
                 process.exit(1);
             }
         }
-        lanThu++;
     }
 }
 
