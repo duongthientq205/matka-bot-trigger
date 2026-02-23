@@ -1,3 +1,23 @@
+// Tạo bảng lịch trình ghép các phiên trùng giờ
+function getBangLichTrinhGhep(lichTrinh) {
+    const map = {};
+    lichTrinh.forEach((item) => {
+        if (!map[item.ist]) map[item.ist] = [];
+        map[item.ist].push(item.id_phien);
+    });
+    // Tạo bảng có số thứ tự, giờ, danh sách phiên
+    const bang = [];
+    let stt = 1;
+    for (const ist of Object.keys(map).sort()) {
+        bang.push({
+            stt,
+            ist,
+            phien: map[ist]
+        });
+        stt++;
+    }
+    return bang;
+}
 // Chuyển dữ liệu KV sang mảng lịch trình chuẩn cho bot
 function mapLichTrinhFromKV(kvData) {
     const lichTrinh = [];
@@ -49,6 +69,9 @@ async function fetchLichTrinhKV() {
 }
 
 async function logicKichHoat() {
+        // Tạo bảng lịch trình ghép trùng giờ
+        const bangGhep = getBangLichTrinhGhep(LICH_TRINH_CHAY);
+        console.table(bangGhep);
     console.log("--- [GITHUB CONTROLLER] KHỞI ĐỘNG CHẾ ĐỘ BẮN TỈA ---");
     // Lấy dữ liệu KV
     const kvData = await fetchLichTrinhKV();
