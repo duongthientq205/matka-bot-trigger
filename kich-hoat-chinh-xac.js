@@ -1,31 +1,63 @@
+// Chuyển dữ liệu KV sang mảng lịch trình chuẩn cho bot
+function mapLichTrinhFromKV(kvData) {
+    const lichTrinh = [];
+    if (!kvData || typeof kvData !== 'object') return lichTrinh;
+    for (const key in kvData) {
+        const item = kvData[key];
+        if (item.ist_open) {
+            lichTrinh.push({
+                id_phien: key + '_OPEN',
+                ist: item.ist_open
+            });
+        }
+        if (item.ist_close) {
+            lichTrinh.push({
+                id_phien: key + '_CLOSE',
+                ist: item.ist_close
+            });
+        }
+    }
+    return lichTrinh;
+}
 const axios = require('axios');
 
-const LICH_TRINH_CHAY = [
-    { "id_phien": "K_MORN_OPEN",    "ist": "11:00" },
-    { "id_phien": "SRI_DAY_OPEN",   "ist": "11:35" },
-    { "id_phien": "K_MORN_CLOSE",   "ist": "12:02" },
-    { "id_phien": "SRI_DAY_CLOSE",  "ist": "12:35" },
-    { "id_phien": "TIME_OPEN",      "ist": "13:00" },
-    { "id_phien": "TIME_CLOSE",     "ist": "14:00" },
-    { "id_phien": "RAJ_DAY_OPEN",   "ist": "15:05" },
-    { "id_phien": "MILAN_DAY_OPEN", "ist": "16:00" },
-    { "id_phien": "K_MAIN_OPEN",    "ist": "16:50" },
-    { "id_phien": "RAJ_DAY_CLOSE",  "ist": "17:05" },
-    { "id_phien": "MILAN_DAY_CLOSE", "ist": "18:00" },
-    { "id_phien": "K_MAIN_CLOSE",   "ist": "18:50" },
-    { "id_phien": "SRI_NIGHT_OPEN", "ist": "19:15" },
-    { "id_phien": "SRI_NIGHT_CLOSE", "ist": "20:15" },
-    { "id_phien": "MILAN_RAJ_OPEN", "ist": "21:00" },
-    { "id_phien": "K_NIGHT_OPEN",   "ist": "21:25" },
-    { "id_phien": "MAIN_OPEN",      "ist": "21:40" },
-    { "id_phien": "MILAN_RAJ_CLOSE","ist": "23:00" },
-    { "id_phien": "K_NIGHT_CLOSE",  "ist": "23:30" },
-    { "id_phien": "MAIN_CLOSE",     "ist": "00:10" }
-];
+// Lấy lịch trình từ KV API
+async function fetchLichTrinhKV() {
+    try {
+        const response = await axios.get(
+            'https://danh-sanh-market-api.duongthientq205.workers.dev/',
+            {
+                headers: {
+                    'X-Custom-Auth': 'mat_khau_cua_toi',
+                    'Accept': 'application/json'
+                }
+            }
+        );
+        // Dữ liệu KV là JSON, có thể là mảng hoặc object
+        // Giả sử trả về [{id_phien, ist}, ...]
+        if (Array.isArray(response.data)) {
+            return response.data;
+        } else if (response.data && response.data.danh_sach) {
+            return response.data.danh_sach;
+        } else {
+            throw new Error('Không đúng cấu trúc KV');
+        }
+    } catch (err) {
+        console.error('Lỗi lấy lịch trình từ KV:', err.message);
+        return [];
+    }
+}
 
 async function logicKichHoat() {
     console.log("--- [GITHUB CONTROLLER] KHỞI ĐỘNG CHẾ ĐỘ BẮN TỈA ---");
-    
+    // Lấy dữ liệu KV
+    const kvData = await fetchLichTrinhKV();
+    // Chuyển sang lịch trình chuẩn cho bot
+    const LICH_TRINH_CHAY = mapLichTrinhFromKV(kvData);
+    if (!LICH_TRINH_CHAY.length) {
+        console.log("Không lấy được lịch trình từ KV. Thoát.");
+        return;
+    }
     const hienTai = new Date();
     // Lấy giờ và phút hiện tại theo IST
     const utc = hienTai.getTime() + (hienTai.getTimezoneOffset() * 60000);
