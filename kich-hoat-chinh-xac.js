@@ -69,9 +69,6 @@ async function fetchLichTrinhKV() {
 }
 
 async function logicKichHoat() {
-        // Tạo bảng lịch trình ghép trùng giờ
-        const bangGhep = getBangLichTrinhGhep(LICH_TRINH_CHAY);
-        console.table(bangGhep);
     console.log("--- [GITHUB CONTROLLER] KHỞI ĐỘNG CHẾ ĐỘ BẮN TỈA ---");
     // Lấy dữ liệu KV
     const kvData = await fetchLichTrinhKV();
@@ -81,6 +78,9 @@ async function logicKichHoat() {
         console.log("Không lấy được lịch trình từ KV. Thoát.");
         return;
     }
+    // Tạo bảng lịch trình ghép trùng giờ (sau khi đã có LICH_TRINH_CHAY)
+    const bangGhep = getBangLichTrinhGhep(LICH_TRINH_CHAY);
+    console.table(bangGhep);
     const hienTai = new Date();
     // Lấy giờ và phút hiện tại theo IST
     const utc = hienTai.getTime() + (hienTai.getTimezoneOffset() * 60000);
