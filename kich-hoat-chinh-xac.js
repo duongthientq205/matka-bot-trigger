@@ -53,18 +53,17 @@ async function fetchLichTrinhKV() {
                 }
             }
         );
-        // Dữ liệu KV là JSON, có thể là mảng hoặc object
-        // Giả sử trả về [{id_phien, ist}, ...]
+        // Luôn trả về object KV nếu không phải mảng
         if (Array.isArray(response.data)) {
             return response.data;
-        } else if (response.data && response.data.danh_sach) {
-            return response.data.danh_sach;
+        } else if (response.data && typeof response.data === 'object') {
+            return response.data;
         } else {
             throw new Error('Không đúng cấu trúc KV');
         }
     } catch (err) {
         console.error('Lỗi lấy lịch trình từ KV:', err.message);
-        return [];
+        return {};
     }
 }
 
