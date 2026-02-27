@@ -48,7 +48,7 @@ async function fetchLichTrinhKV() {
             'https://danh-sanh-market-api.duongthientq205.workers.dev/?v=4',
             {
                 headers: {
-                    'X-Custom-Auth': process.env.KV_API_PASSWORD',
+                    'X-Custom-Auth': process.env.KV_API_PASSWORD,
                     'Accept': 'application/json'
                 }
             }
