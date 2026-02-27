@@ -89,19 +89,22 @@ async function logicKichHoat() {
 
     // Kiểm tra tất cả các phiên, nếu giờ/phút trùng với lịch thì gọi bot Google
     let found = false;
-    for (const phien of LICH_TRINH_CHAY) {
-        let [h, m] = phien.ist.split(":").map(Number);
-        // Tính thời điểm gọi trước 1 phút
-        m = m - 1;
+    // Thành đoạn này (Đúng):
+    for (const muc of bangGhep) { 
+        let [h, m] = muc.ist.split(":").map(Number);
+        
+        // --- LOGIC TÍNH GIỜ GỌI TRƯỚC 1 PHÚT ---
+        m = m - 2;
         if (m < 0) {
             m = 59;
             h = h - 1;
             if (h < 0) h = 23;
         }
+        
         if (gioIST === h && phutIST === m) {
             found = true;
-            console.log(`>>> GỌI TRƯỚC 1 PHÚT! Đang gọi Google cho phiên: ${phien.id_phien} (${phien.ist} IST)`);
-            await goiBotGoogle(phien.id_phien);
+            console.log(`>>> BẮN TỈA: Kích hoạt khung giờ ${muc.ist} (Gồm: ${muc.phien.join(", ")})`);
+            await goiBotGoogle(muc.phien[0]); 
         }
     }
     if (!found) {
