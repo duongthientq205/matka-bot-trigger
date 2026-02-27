@@ -45,10 +45,10 @@ const axios = require('axios');
 async function fetchLichTrinhKV() {
     try {
         const response = await axios.get(
-            'https://danh-sanh-market-api.duongthientq205.workers.dev/',
+            'https://danh-sanh-market-api.duongthientq205.workers.dev/?v=4',
             {
                 headers: {
-                    'X-Custom-Auth': 'mat_khau_cua_toi',
+                    'X-Custom-Auth': process.env.KV_API_PASSWORD || 'mat_khau_cua_toi',
                     'Accept': 'application/json'
                 }
             }
