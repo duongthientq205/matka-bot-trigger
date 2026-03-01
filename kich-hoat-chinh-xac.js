@@ -18,12 +18,24 @@ function getBangLichTrinhGhep(lichTrinh) {
     }
     return bang;
 }
-// Chuyển dữ liệu KV sang mảng lịch trình chuẩn cho bot
+/// Chuyển dữ liệu KV sang mảng lịch trình chuẩn cho bot (ĐÃ TÍCH HỢP CHẶN NGÀY NGHỈ)
 function mapLichTrinhFromKV(kvData) {
     const lichTrinh = [];
     if (!kvData || typeof kvData !== 'object') return lichTrinh;
+
+    // Lấy thứ hiện tại theo giờ VN (0 = Chủ Nhật, 6 = Thứ Bảy)
+    const ngayHomNay = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Ho_Chi_Minh"})).getDay();
+
     for (const key in kvData) {
         const item = kvData[key];
+
+        // --- LOGIC CHẶN TẦNG 2: KIỂM TRA NGÀY NGHỈ ---
+        if (item.off_days && item.off_days.includes(ngayHomNay)) {
+            // console.log(`[SKIP] Đài ${key} nghỉ hôm nay, không tạo phiên bắn tỉa.`);
+            continue; 
+        }
+        // -----------------------------------
+
         if (item.ist_open) {
             lichTrinh.push({
                 id_phien: key + '_OPEN',
@@ -45,7 +57,7 @@ const axios = require('axios');
 async function fetchLichTrinhKV() {
     try {
         const response = await axios.get(
-            'https://danh-sanh-market-api.duongthientq205.workers.dev/?v=4',
+            'https://danh-sanh-market-api.duongthientq205.workers.dev/?v=5',
             {
                 headers: {
                     'X-Custom-Auth': process.env.KV_API_PASSWORD,
