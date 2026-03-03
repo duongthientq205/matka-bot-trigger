@@ -23,8 +23,8 @@ function mapLichTrinhFromKV(kvData) {
     const lichTrinh = [];
     if (!kvData || typeof kvData !== 'object') return lichTrinh;
 
-    // Lấy thứ hiện tại theo giờ VN (0 = Chủ Nhật, 6 = Thứ Bảy)
-    const ngayHomNay = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Ho_Chi_Minh"})).getDay();
+    // Lấy thứ hiện tại theo giờ IST (Ấn Độ) (0 = Chủ Nhật, 6 = Thứ Bảy)
+    const ngayHomNay = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Kolkata"})).getDay();
 
     for (const key in kvData) {
         const item = kvData[key];
